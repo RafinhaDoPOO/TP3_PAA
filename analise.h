@@ -1,10 +1,14 @@
 #ifndef ANALISE_H
 #define ANALISE_H
 
-#include "crypto.h"
+typedef struct {
+    char letra;
+    int contagem;
+    float frequencia;
+} StatLetra;
 
-// Realiza a contagem de caracteres e imprime a tabela comparativa
-// Texto base: O texto puramente criptografado (dados->texto_cifrado) [cite: 66]
 void executar_analise_frequencia(const char *texto_cifrado);
+void interface_analise_de_frequencia();
+//void chute_baseado_frequencia(StatLetra stats[26], const char *texto_cifrado);
 
 #endif
