@@ -66,7 +66,7 @@ void salvar_resultado(const char *caminho_saida, const char *nome_arquivo, const
     fprintf(f, "%s", arquivo_claro);
     fclose(f);
 }
-
+// INTERFACE APENAS PARA CASO DE TESTES DE MESA
 void interface_leitura_arquivo(){
     char nome_arquivo[256];
 
@@ -83,7 +83,6 @@ void interface_leitura_arquivo(){
 
     if (!conteudo) {
         printf("Erro ao ler arquivo. Encerrando...\n");
-        return 1;
     }
 
     // 2. Criptografar
@@ -92,7 +91,6 @@ void interface_leitura_arquivo(){
     if (!criptografado) {
         printf("Erro na criptografia.\n");
         free(conteudo);
-        return 1;
     }
 
     // 3. Salvar o resultado
@@ -103,6 +101,4 @@ void interface_leitura_arquivo(){
 
     // Liberar memoria
     free(conteudo);
-
-    return 0;
 }
