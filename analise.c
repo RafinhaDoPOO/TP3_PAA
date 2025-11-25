@@ -54,20 +54,9 @@ void executar_analise_frequencia(const char *texto_cifrado, StatLetra stats[26])
             }
         }
     }
-    // 5. Imprimir resultados
-    printf("Letra,  Cont.,  Freq.\n");
-
-    for (int i = 0; i < 26; i++)
-    {
-        if (stats[i].contagem > 0)
-        {
-            printf("%c%12d%8.2f%%\n",
-                   stats[i].letra,
-                   stats[i].contagem,
-                   stats[i].frequencia);
-        }
-    }
 }
+
+
 
 void Ajustando_Frequencia(StatLetra stats[26], AnaliseFrequencia Frequencia[26])
 {
