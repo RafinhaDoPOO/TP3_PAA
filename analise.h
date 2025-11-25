@@ -1,14 +1,20 @@
 #ifndef ANALISE_H
 #define ANALISE_H
 
-typedef struct {
+typedef struct
+{
     char letra;
     int contagem;
     float frequencia;
 } StatLetra;
 
-void executar_analise_frequencia(const char *texto_cifrado);
-void interface_analise_de_frequencia();
-//void chute_baseado_frequencia(StatLetra stats[26], const char *texto_cifrado);
+typedef struct
+{
+    char letraalfabeto;
+    char letraFrequencia;
+} AnaliseFrequencia;
 
+void executar_analise_frequencia(const char *texto_cifrado, StatLetra stats[26]);
+void interface_analise_de_frequencia();
+void Ajustando_Frequencia(StatLetra stats[26], AnaliseFrequencia Frequencia[26]);
 #endif
