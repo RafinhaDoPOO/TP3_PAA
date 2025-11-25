@@ -37,7 +37,21 @@ int main() {
             case 1: interface_analise(conteudo,stats,Frequencia,contadordefrequencia);
             contadordefrequencia++;
             break;
-            case 2: ; break;
+            case 2: printf("Análise de Frequência:\n");
+    printf("Letra | Contagem | Frequência (%%)\n");
+    printf("--------------------------------\n");
+    
+    // 3. O array 'resultados' agora está preenchido e ordenado.
+    //    Você pode iterar sobre ele para usá-lo ou imprimi-lo.
+    for (int i = 0; i < 26; i++) {
+        // Para imprimir apenas as letras que apareceram
+        if (stats[i].contagem > 0) {
+            printf("  %c   |    %d     |    %.2f\n", 
+                   stats[i].letra, 
+                   stats[i].contagem, 
+                   stats[i].frequencia);
+        }
+    }; break;
             case 3: printf("Ainda não foi implementado"); break;
             case 4: printf("Ainda não foi implementado"); break;
             case 5: printf("Ainda não foi implementado"); break;
