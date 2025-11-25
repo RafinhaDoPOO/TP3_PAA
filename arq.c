@@ -52,10 +52,10 @@ char* criptografia_cifra_deslocamento(char* conteudo){
     return conteudo;
 }
 
-void salvar_resultado(const char *caminho_saida, const char *nome_arquivo, const char *arquivo_claro) {
+void salvar_resultado(const char *nome_arquivo, const char *arquivo_claro) {
     // Monta o caminho final: pasta + "/" + nome do arquivo
     char destino[512];
-    snprintf(destino, sizeof(destino), "%s/%s", caminho_saida, nome_arquivo);
+    snprintf(destino, sizeof(destino), "Arquivos_textos_criptografados/%s",nome_arquivo);
 
     FILE *f = fopen(destino, "w");
     if (!f) {
@@ -65,13 +65,11 @@ void salvar_resultado(const char *caminho_saida, const char *nome_arquivo, const
 
     fprintf(f, "%s", arquivo_claro);
     fclose(f);
-}
-// INTERFACE APENAS PARA CASO DE TESTES DE MESA
-void interface_leitura_arquivo(){
-    char nome_arquivo[256];
 
-    printf("Digite o nome do arquivo (ex: texto.txt): ");
-    scanf("%255s", nome_arquivo);
+}
+
+// INTERFACE APENAS PARA CASO DE TESTES DE MESA
+void interface_leitura_arquivo(char *nome_arquivo){
 
     // Construindo caminho completo do arquivo claro
     char caminho_claro[512];
@@ -93,11 +91,8 @@ void interface_leitura_arquivo(){
         free(conteudo);
     }
 
-    // 3. Salvar o resultado
-    salvar_resultado("Arquivos_textos_criptografados", nome_arquivo, criptografado);
-
-    printf("\nArquivo '%s' criptografado com sucesso!\n", nome_arquivo);
-    printf("Saída salva em: Arquivos_textos_criptografados/%s\n", nome_arquivo);
+    // 3. Salvar resultado 
+    salvar_resultado(nome_arquivo, criptografado);
 
     // Liberar memoria
     free(conteudo);
