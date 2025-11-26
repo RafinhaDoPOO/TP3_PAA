@@ -4,9 +4,6 @@
 #include "arq.h"
 #include "analise.h"
 
-// Cores ANSI
-#define RESET   "\033[0m"
-#define GREEN   "\033[32m"
 
 void executar_analise_frequencia(const char *texto_cifrado, StatLetra stats[26])
 {
@@ -79,90 +76,4 @@ void Ajustando_Frequencia(StatLetra stats[26], AnaliseFrequencia Frequencia[26])
         Frequencia[i].letraalfabeto = freq_pt[i];       // letra esperada
         Frequencia[i].letraFrequencia = stats[i].letra; // letra real do texto
     }
-}
-
-
-void interface_analise(const char *texto_cifrado, StatLetra stats[26],AnaliseFrequencia Frequencia[26], int contador){
-    char Alfabeto[26] = {
-    'A','B','C','D','E','F','G','H','I','J','K','L','M',
-    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
-};
-
-    printf("\n=== Texto criptografado ===\n");
-    printf("%s\n\n", texto_cifrado);
-
-    // -------------------------------
-    // Imprime chave usada no chute
-    // -------------------------------
-
-   printf("=== Chave ===\n");
-
-// imprime alfabeto
-for (int i = 0; i < 26; i++) {
-    printf("%c ", Alfabeto[i]);
-}
-printf("\n");
-
-// imprime substituições
-for (int i = 0; i < 26; i++) {
-    char substituta = '_';  // padrão: não mapeado ainda
-
-    // procurar no vetor Frequencia
-    for (int j = 0; j < contador; j++) { 
-        // só usa até "contador"
-        if (Frequencia[j].letraalfabeto == Alfabeto[i]) {
-            substituta = Frequencia[j].letraFrequencia;
-            break;
-        }
-    }
-
-    printf("%c ", substituta);
-}
-printf("\n");
-
-    
-
-    printf("=== Texto parcialmente decifrado ===\n");
-
-for (int i = 0; texto_cifrado[i] != '\0'; i++)
-{
-    char c = texto_cifrado[i];
-
-    if (isalpha(c))
-    {
-        char up = toupper(c);
-        char resultado = c;   // por padrão: mantém a letra criptografada
-        int encontrado = 0;
-
-        // verifica se a letra já foi decifrada
-        for (int j = 0; j < contador; j++)
-        {
-            if (Frequencia[j].letraalfabeto == up)
-            {
-                resultado = Frequencia[j].letraFrequencia;
-                encontrado = 1;
-                break;
-            }
-        }
-
-        if (encontrado)
-        {
-            // ✔ letra que já sabemos → verde
-            printf(GREEN "%c" RESET, resultado);
-        }
-        else
-        {
-            // ✔ letra ainda desconhecida → mostra criptografada
-            printf("%c", c);
-        }
-    }
-    else
-    {
-        // pontuação, espaços, etc
-        printf("%c", c);
-    }
-}
-
-printf("\n\n");
-
 }

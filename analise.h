@@ -16,5 +16,4 @@ typedef struct
 
 void executar_analise_frequencia(const char *texto_cifrado, StatLetra stats[26]);
 void Ajustando_Frequencia(StatLetra stats[26], AnaliseFrequencia Frequencia[26]);
-void interface_analise(const char *texto_cifrado, StatLetra stats[26],AnaliseFrequencia Frequencia[26], int contador);
 #endif
