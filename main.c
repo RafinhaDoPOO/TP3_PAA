@@ -7,7 +7,7 @@
 int main() {
     desenho_inicial();
     char nome_arquivo[256];
-    printf("Digite o nome do seu arquivo : \n");
+    printf(WHITE_NEON "Digite o nome do seu arquivo ex(mydei.txt): "RESET);
     scanf("%s", nome_arquivo);
     
     interface_leitura_arquivo(nome_arquivo);

@@ -25,6 +25,9 @@ char* ler_arquivo_texto(const char *caminho) {
     return conteudo;
 }
 
+//____________________________________________________________________________________________
+//função de criptografia inicial
+
 char* criptografia_cifra_deslocamento(char* conteudo){
 // Verificar se o conteudo foi criado
     if (!conteudo) {
@@ -51,6 +54,7 @@ char* criptografia_cifra_deslocamento(char* conteudo){
 
     return conteudo;
 }
+//____________________________________________________________________________________________
 
 void salvar_resultado(const char *nome_arquivo, const char *arquivo_claro) {
     // Monta o caminho final: pasta + "/" + nome do arquivo
@@ -67,6 +71,9 @@ void salvar_resultado(const char *nome_arquivo, const char *arquivo_claro) {
     fclose(f);
 
 }
+//_____________________________________________________________________________________________
+//Não esta sendo usada ainda
+
 
 // INTERFACE APENAS PARA CASO DE TESTES DE MESA
 void interface_leitura_arquivo(char *nome_arquivo){

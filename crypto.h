@@ -11,14 +11,14 @@ typedef struct {
 // Inicializa estruturas e aloca memória necessária
 void inicializar_cripto(EstadoCripto *e, const char *texto_inicial);
 
-// Libera memória
-void destruir_cripto(EstadoCripto *e);
+
+
 
 // Atualiza uma entrada na chave (Ex: 'X' cifrado é na verdade 'A') [cite: 127]
 void atualizar_chave(EstadoCripto *e, char letra_cifrada, char letra_clara);
 
 // Gera a string 'texto_parcial' baseada na chave atual para exibição/busca
 // Deve misturar letras decifradas com as ainda cifradas [cite: 60]
-void atualizar_texto_parcial(EstadoCripto *e);
+
 
 #endif

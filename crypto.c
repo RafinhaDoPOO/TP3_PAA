@@ -13,6 +13,7 @@ void inicializar_cripto(EstadoCripto *e, const char *texto_inicial) {
     }
 }
 
+
 void atualizar_chave(EstadoCripto *e, char letra_cifrada, char letra_clara) {
     if(isalpha(letra_cifrada)) {
         int idx = toupper(letra_cifrada) - 'A';
@@ -24,8 +25,3 @@ void atualizar_chave(EstadoCripto *e, char letra_cifrada, char letra_clara) {
     }
 }
 
-void atualizar_texto_parcial(EstadoCripto *e) {
-    // Percorre e->texto_cifrado.
-    // Se a letra tem mapeamento em e->chave, escreve a decifrada em e->texto_parcial.
-    // Se não tem, mantém a cifrada.
-}
