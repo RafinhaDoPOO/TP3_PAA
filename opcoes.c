@@ -4,10 +4,10 @@
 #include <string.h>
 #include "opcoes.h"
 #include "cores.h" // Supondo que suas cores estejam aqui
+#define MAX_FILENAME 256
+//_________________________________________________________________________________________________________
 
-// --- OPÇÃO 1 ---
-// Assinatura agora inclui AnaliseFrequencia Frequencia[26]
-void executar_opcao_1_estado(const char *texto_cifrado, StatLetra stats[26], AnaliseFrequencia Frequencia[26], int contador){
+void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, StatLetra stats[26], int contador){
     
     char mais_comum_cifrada = stats[0].letra;
     char mais_comum_idioma = 'A'; 
@@ -40,13 +40,17 @@ void executar_opcao_1_estado(const char *texto_cifrado, StatLetra stats[26], Ana
         if (letra_esta_visivel[(unsigned char)letra_cifrada_atual]) {
             char decifrada = ((letra_cifrada_atual - 'A' - deslocamento + 26) % 26) + 'A';
             printf(WHITE_NEON"%c ", decifrada);
+            freq->chaves[i] = decifrada; //salvando no vetor pra exportar
         } else {
             printf(WHITE_NEON"_ ");
+            freq->chaves[i] = '_'; 
         }
+        
     }
     printf(LIMA" |\n"RESET);
     printf(LIMA"|______________________________________________________|\n"RESET);
     printf("\n");
+
 
     printf(CYAN_NEON"_______________________TEXTO PROGRESSIVO__________________________\n");
 
@@ -72,7 +76,8 @@ void executar_opcao_1_estado(const char *texto_cifrado, StatLetra stats[26], Ana
     printf("\n\n");
 }
 
-// --- OPÇÃO 2 ---
+//_________________________________________________________________________________________________________
+
 void executar_opcao_2_frequencia(StatLetra stats[26]) {
     printf("\n");
     printf(CYAN_NEON"____________________________\n");
@@ -88,8 +93,8 @@ void executar_opcao_2_frequencia(StatLetra stats[26]) {
     }
 }
 
-// --- OPÇÃO 5 ---
-// NOME CORRIGIDO: de interface_alterar_chave para executar_opcao_5_alterar
+//_________________________________________________________________________________________________________
+
 void executar_opcao_5_alterar(AnaliseFrequencia Frequencia[26]) {
     char original, cifrada;
 
@@ -144,3 +149,59 @@ void executar_opcao_5_alterar(AnaliseFrequencia Frequencia[26]) {
     }
     printf(CYAN_NEON "_____________________________________________________________________\n" RESET);
 }
+
+
+//_________________________________________________________________________________________________________
+void executar_opcao_6_exportar(const AnaliseFrequencia *freq) {
+    char nome_arquivo[MAX_FILENAME] = "";
+    FILE *arquivo = NULL;
+
+    printf("\n" CYAN_NEON "_______________________________________________________\n" RESET);
+    printf(LIMA           "|                  MENU DE EXPORTACAO                  |\n" RESET);
+    printf(CYAN_NEON      "|______________________________________________________|\n" RESET);
+    printf("\n");
+
+    printf(WHITE_NEON "DIGITE O NOME DO ARQUIVO PARA SALVAR A CHAVE(ex: chave.txt): " RESET);
+    
+   
+    if (scanf("%255s", nome_arquivo) != 1) {
+        printf(RED_NEON "Erro ao ler o nome do arquivo.\n" RESET);
+        int c;
+        while ((c = getchar()) != '\n' && c != EOF);
+        return;
+    }
+    
+    
+    
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+   
+    if (strlen(nome_arquivo) == 0) {
+        printf(RED_NEON "\nERRO: O nome do arquivo nao pode ser vazio (Falha na leitura).\n" RESET);
+        return;
+    }
+
+   
+    arquivo = fopen(nome_arquivo, "w");
+
+    if (arquivo == NULL) {
+        printf(RED_NEON "\nERRO na criacao do arquivo!\n" RESET);
+        return; 
+    }
+
+ 
+    for (int i = 0; i < 26; i++) {
+        fprintf(arquivo, "%c ", 'A' + i); 
+    }
+    fprintf(arquivo, "\n");
+    
+    for (int i = 0; i < 26; i++) {
+        fprintf(arquivo, "%c ", freq->chaves[i]);
+    }
+    fprintf(arquivo, "\n");
+
+    fclose(arquivo);
+    printf("\n" LIMA "SUCESSO: CHAVE SALVA EM '%s'.\n" RESET, nome_arquivo);
+    printf(YELLOW_NEON "ENCERRANDO\n" RESET);
+}
+

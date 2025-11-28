@@ -10,6 +10,7 @@ typedef struct{
 typedef struct{
     char letraalfabeto;
     char letraFrequencia;
+    char chaves[26];
 } AnaliseFrequencia;
 
 void executar_analise_frequencia(const char *texto_cifrado, StatLetra stats[26]);

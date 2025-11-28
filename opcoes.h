@@ -5,7 +5,7 @@
 
 // Opção 1: Estado Atual 
 // (Adicionado o parâmetro AnaliseFrequencia para igualar à implementação)
-void executar_opcao_1_estado(const char *texto_cifrado, StatLetra stats[26], AnaliseFrequencia Frequencia[26], int contador);
+void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, StatLetra stats[26], int contador);
 
 // Opção 2: Análise de Frequência
 void executar_opcao_2_frequencia(StatLetra stats[26]);
@@ -19,6 +19,6 @@ void executar_opcao_4_busca_aprox();
 void executar_opcao_5_alterar(AnaliseFrequencia Frequencia[26]);
 
 // Opção 6: Exportar
-void executar_opcao_6_exportar(const char *texto_cifrado, AnaliseFrequencia Frequencia[26]);
+void executar_opcao_6_exportar(const AnaliseFrequencia *freq);
 
 #endif
