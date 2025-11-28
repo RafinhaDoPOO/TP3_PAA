@@ -32,6 +32,7 @@ int* computeLPSArray(char* pat) {
     return lps;
 }
 
+
 int* buscar_exata(char *texto, char *padrao) {
     int n = strlen(texto);
     int m = strlen(padrao);
@@ -90,34 +91,3 @@ void buscar_aproximada_shift_and(const char *texto_parcial, const char *padrao, 
     // Loop de busca aqui...
 }
 
-
-
-
-//main do chat
-
-
-int main() {
-
-    char texto[]  = "aabaacaadaabaaba";
-    char padrao[] = "aaba";
-
-    printf("Texto : %s\n", texto);
-    printf("Padrao: %s\n\n", padrao);
-
-    int *resultados = buscar_exata(texto, padrao);
-
-    printf("Ocorrencias encontradas:\n");
-
-    int i = 0;
-    if (resultados[0] == -1) {
-        printf("Nenhuma ocorrencia encontrada.\n");
-    } else {
-        while (resultados[i] != -1) {
-            printf("Posicao %d\n", resultados[i]);
-            i++;
-        }
-    }
-
-    free(resultados);
-    return 0;
-}

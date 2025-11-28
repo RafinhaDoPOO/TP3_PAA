@@ -1,6 +1,7 @@
 #ifndef ARQ_H
 #define ARQ_H
 
+void leitura_arquivo(char *nome_arquivo);
 // Lê todo o conteúdo de um arquivo e retorna uma string alocada dinamicamente.
 // Retorna NULL em caso de erro.
 char* ler_arquivo_texto(const char *caminho);

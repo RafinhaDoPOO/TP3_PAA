@@ -10,7 +10,7 @@ int main() {
     printf(WHITE_NEON "Digite o nome do seu arquivo ex(mydei.txt): "RESET);
     scanf("%s", nome_arquivo);
     
-    interface_leitura_arquivo(nome_arquivo);
+    leitura_arquivo(nome_arquivo);
 
     char destino[512];
     snprintf(destino, sizeof(destino),

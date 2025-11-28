@@ -74,9 +74,8 @@ void salvar_resultado(const char *nome_arquivo, const char *arquivo_claro) {
 //_____________________________________________________________________________________________
 //Não esta sendo usada ainda
 
-
 // INTERFACE APENAS PARA CASO DE TESTES DE MESA
-void interface_leitura_arquivo(char *nome_arquivo){
+void leitura_arquivo(char *nome_arquivo){
 
     // Construindo caminho completo do arquivo claro
     char caminho_claro[512];
