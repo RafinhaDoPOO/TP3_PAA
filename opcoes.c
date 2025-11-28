@@ -3,8 +3,12 @@
 #include <ctype.h>
 #include <string.h>
 #include "opcoes.h"
-#include "cores.h" // Supondo que suas cores estejam aqui
+#include "busca.h"
+#include "cores.h" 
+#include "analise.h"
 #define MAX_FILENAME 256
+#define MAX_TEXTO 100000
+#define MAX_PADRAO 256
 //_________________________________________________________________________________________________________
 
 void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, StatLetra stats[26], int contador){
@@ -19,6 +23,7 @@ void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, 
         unsigned char letra_atual = stats[i].letra;
         letra_esta_visivel[letra_atual] = 1; 
     }
+    
 
     char Alfabeto[26] = {
         'A','B','C','D','E','F','G','H','I','J','K','L','M',
@@ -54,8 +59,11 @@ void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, 
 
     printf(CYAN_NEON"_______________________TEXTO PROGRESSIVO__________________________\n");
 
+    freq->texto_parcial = malloc(strlen(texto_cifrado) * sizeof(char));
+
     for (int i = 0; texto_cifrado[i] != '\0'; i++) {
         char c = texto_cifrado[i];
+        freq->texto_parcial[i] = texto_cifrado[i];
 
         if (isalpha(c)) {
             char maiuscula = toupper(c);
@@ -63,6 +71,7 @@ void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, 
             if (letra_esta_visivel[(unsigned char)maiuscula]) {
                 char base = isupper(c) ? 'A' : 'a';
                 char decifrado = ((c - base - deslocamento + 26) % 26) + base;
+                freq->texto_parcial[i] = decifrado;
                 printf(LIMA "%c" RESET, decifrado);
             } else {
                 printf(WHITE_NEON"%c"RESET, c);
@@ -70,7 +79,9 @@ void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, 
         } else {
             printf(WHITE_NEON"%c"RESET, c);
         }
+        
     }
+    
     printf("\n");
     printf(CYAN_NEON"__________________________________________________________________\n"RESET);
     printf("\n\n");
@@ -80,10 +91,10 @@ void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, 
 
 void executar_opcao_2_frequencia(StatLetra stats[26]) {
     printf("\n");
-    printf(CYAN_NEON"____________________________\n");
-    printf(CYAN_NEON"| " LIMA "ANALISE DE FREQUENCIA:"CYAN_NEON"  |\n");
-    printf(CYAN_NEON"| "LIMA "Letra" CYAN_NEON"|"LIMA "Contagem" CYAN_NEON"|"LIMA "Frequencia (%%)"CYAN_NEON" |\n");
-    printf("--------------------------------\n");
+    printf(CYAN_NEON"____________________________________\n");
+    printf(CYAN_NEON"| " LIMA "ANALISE DE FREQUENCIA:"CYAN_NEON"            |\n");
+    printf(CYAN_NEON"| "LIMA "Letra" CYAN_NEON" | "LIMA "Contagem" CYAN_NEON" | "LIMA "Frequencia (%%)"CYAN_NEON" |\n");
+    printf(CYAN_NEON"|___________________________________|\n");
 
     for (int i = 0; i < 26; i++) {
         if (stats[i].contagem > 0) {
@@ -92,7 +103,100 @@ void executar_opcao_2_frequencia(StatLetra stats[26]) {
         }
     }
 }
+//_________________________________________________________________________________________________________
+void executar_opcao_3_busca_exata(const char *texto_cifrado) {
+    char padrao[MAX_PADRAO + 1];
+    int *posicoes = NULL;
+    int count = 0;
 
+    printf(CYAN_NEON "\n____________________BUSCA EXATA (KMP)____________________\n" RESET);
+    printf(WHITE_NEON "Qual o padrao utilizado? (Apenas letras serao consideradas)\n" RESET);
+    printf(WHITE_NEON "> " RESET);
+    
+    if (scanf("%s", padrao) != 1) {
+        printf(RED_NEON "Erro na leitura do padrao.\n" RESET);
+        return;
+    }
+    // Converter padrão para maiúsculas
+    for (int i = 0; padrao[i] != '\0'; i++) {
+        padrao[i] = toupper((unsigned char)padrao[i]);
+    }
+
+    
+    posicoes = buscar_exata(texto_cifrado, padrao);
+    
+    if (posicoes == NULL) {
+        printf(RED_NEON "Erro: Falha na alocacao de memoria.\n" RESET);
+        return;
+    }
+
+    
+    printf("\n" LIMA "________Resultado da Busca__________\n" RESET);
+    printf(WHITE_NEON "Padrao: %s (tamanho %lu)\n", padrao, strlen(padrao));
+    
+
+    int i = 0;
+    while (posicoes[i] != -1) {
+        count++;
+        i++;
+    }
+
+    //quantia de ocorrencias
+    printf(LIMA "Ocorrencias: %d\n" RESET, count);
+
+    //exibindo onde tava
+    if (count > 0) {
+        printf(WHITE_NEON "\nDetalhes das Ocorrencias:\n" RESET);
+        
+        // Re-iterar para imprimir detalhes
+        for (int j = 0; j < count; j++) {
+            int pos = posicoes[j];
+            int len = strlen(padrao);
+            
+            // Exibir a ocorrência (substring)
+            printf(CYAN_NEON "  [%03d] " LIMA, pos); 
+            
+            // Imprime o texto casando o padrão
+            for (int k = 0; k < len; k++) {
+                printf("%c", texto_cifrado[pos + k]);
+            }
+            printf(RESET "\n");
+        }
+    }
+    
+    free(posicoes);
+
+    printf(CYAN_NEON "________________________________________________________\n" RESET);
+}
+//_________________________________________________________________________________________________________
+void executar_opcao_4_busca_aprox(char *texto_cifrado){
+    char padrao[MAX_PADRAO + 1];
+    int k;
+    printf("\n");
+    printf(CYAN_NEON "\n____________________BUSCA APROXIMADA (SHIFT-AND)____________________\n" RESET);
+    printf(WHITE_NEON "Qual o padrao utilizado? (Apenas letras serao consideradas)\n" RESET);
+    printf(WHITE_NEON "> " RESET);
+    
+    if (scanf("%s", padrao) != 1) {
+        printf(RED_NEON "Erro na leitura do padrao.\n" RESET);
+        return;
+    }
+
+    // Converter padrão para maiúsculas
+    for (int i = 0; padrao[i] != '\0'; i++) {
+        padrao[i] = toupper((unsigned char)padrao[i]);
+    }
+
+    printf(WHITE_NEON "Quantos mismatches (substituicoes) sao permitidos? " RESET);
+    if (scanf("%d", &k) != 1 || k < 0 || k > 64) {
+        printf(RED_NEON "Erro: Numero invalido de mismatches. Deve ser entre 0 e 64.\n" RESET);
+        return;
+    }
+
+    shiftand_kmismatch(texto_cifrado, strlen(texto_cifrado), padrao, strlen(padrao), k);
+
+    printf(CYAN_NEON "________________________________________________________\n" RESET);
+}
 //_________________________________________________________________________________________________________
 
 void executar_opcao_5_alterar(AnaliseFrequencia Frequencia[26]) {
@@ -129,27 +233,36 @@ void executar_opcao_5_alterar(AnaliseFrequencia Frequencia[26]) {
         }
     }
 
-    if (idx_original != -1) {
-        char cifrada_velha = Frequencia[idx_original].letraFrequencia;
+   if (idx_original != -1) {
+    // Armazena o mapeamento cifrado **atual** da letra 'original'
+    // Este é o valor que a letra "dona anterior" receberá na troca.
+    char cifrada_velha_de_original = Frequencia[idx_original].letraFrequencia;
+    
+    // NOTA: A variável 'original' já contém a letra do texto simples que estamos modificando.
 
-        if (idx_dono_anterior != -1 && idx_dono_anterior != idx_original) {
-            Frequencia[idx_original].letraFrequencia = cifrada;
-            Frequencia[idx_dono_anterior].letraFrequencia = cifrada_velha; 
-            
-            printf(YELLOW_NEON "\n[Aviso] Houve uma troca para manter a consistência:\n");
-            printf("A letra '%c' cedeu o mapeamento '%c' e ficou com '%c'.\n", 
-                   Frequencia[idx_dono_anterior].letraalfabeto, cifrada, cifrada_velha);
-        } else {
-            Frequencia[idx_original].letraFrequencia = cifrada;
-        }
-
-        printf(LIMA "\nRegistrado com sucesso: %c -> %c\n" RESET, original, cifrada);
+    if (idx_dono_anterior != -1 && idx_dono_anterior != idx_original) {
+        
+        // 1. A letra 'original' agora aponta para a nova 'cifrada'
+        Frequencia[idx_original].letraFrequencia = cifrada;
+        
+        // 2. O antigo "dono" da 'cifrada' recebe o mapeamento antigo de 'original'
+        Frequencia[idx_dono_anterior].letraFrequencia = cifrada_velha_de_original; 
+        
+        printf(YELLOW_NEON "\n[Aviso] Houve uma troca para manter a consistência:\n");
+        // Use 'original' para se referir à letra que está tendo seu mapeamento alterado.
+        printf("A letra '%c' cedeu o mapeamento '%c' e ficou com '%c'.\n", 
+               original, cifrada_velha_de_original, cifrada);
     } else {
-        printf(RED_NEON "Erro: Letra original nao encontrada na tabela.\n" RESET);
+        // Se não houve troca, apenas atualiza o mapeamento
+        Frequencia[idx_original].letraFrequencia = cifrada;
     }
+
+    printf(LIMA "\nRegistrado com sucesso: %c -> %c\n" RESET, original, cifrada);
+} else {
+    printf(RED_NEON "Erro: Letra original nao encontrada na tabela.\n" RESET);
+}
     printf(CYAN_NEON "_____________________________________________________________________\n" RESET);
 }
-
 
 //_________________________________________________________________________________________________________
 void executar_opcao_6_exportar(const AnaliseFrequencia *freq) {
@@ -157,7 +270,7 @@ void executar_opcao_6_exportar(const AnaliseFrequencia *freq) {
     FILE *arquivo = NULL;
 
     printf("\n" CYAN_NEON "_______________________________________________________\n" RESET);
-    printf(LIMA           "|                  MENU DE EXPORTACAO                  |\n" RESET);
+    printf(CYAN_NEON           "|                  MENU DE EXPORTACAO                  |\n" RESET);
     printf(CYAN_NEON      "|______________________________________________________|\n" RESET);
     printf("\n");
 

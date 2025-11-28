@@ -1,7 +1,6 @@
 #ifndef ARQ_H
 #define ARQ_H
 
-void leitura_arquivo(char *nome_arquivo);
 // Lê todo o conteúdo de um arquivo e retorna uma string alocada dinamicamente.
 // Retorna NULL em caso de erro.
 char* ler_arquivo_texto(const char *caminho);
@@ -10,7 +9,7 @@ char* ler_arquivo_texto(const char *caminho);
 char* criptografia_cifra_deslocamento(char* conteudo);
 // Escreve a chave e o texto decifrado em um arquivo de saída.
 void salvar_resultado(const char *nome_arquivo, const char *arquivo_claro);
-// Pequena interface interativa criada para descobir qual arquivo o usuario quer.
-void interface_leitura_arquivo();
+// Concatenar os 12 arquivos em 1 so
+char* concatenar_arquivos();
 
 #endif

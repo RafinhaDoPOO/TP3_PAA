@@ -11,9 +11,9 @@ void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, 
 void executar_opcao_2_frequencia(StatLetra stats[26]);
 
 // Opção 3 e 4: (Placeholders)
-void executar_opcao_3_busca_exata();
-void executar_opcao_4_busca_aprox();
+void executar_opcao_3_busca_exata(const char *texto_cifrado);
 
+void executar_opcao_4_busca_aprox(char *texto_cifrado);
 // Opção 5: Alterar Chave
 // (O nome aqui deve ser igual ao da implementação)
 void executar_opcao_5_alterar(AnaliseFrequencia Frequencia[26]);

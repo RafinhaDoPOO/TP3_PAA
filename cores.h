@@ -23,4 +23,5 @@
 #define RED_BOLD    "\x1b[31;1m"
 #define MAGENTA_BOLD "\x1b[35;1m"
 
+
 #endif

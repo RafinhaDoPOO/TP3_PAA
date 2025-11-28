@@ -27,24 +27,29 @@ printf(WHITE_NEON "                                               Tp3 - Projeto 
 printf(YELLOW_NEON "Novo Objetivo: Utilize a criptoanalise para decifrar a profecia!\n" RESET);
 }
 
-void interface_menu_principal(const char *conteudo, StatLetra stats[26], AnaliseFrequencia Frequencia[26]) {
+void interface_menu_principal(const char *conteudo, StatLetra stats[26], AnaliseFrequencia Frequencia[26],
+    const char *conteudo_completo, StatLetra stats_completo[26] , AnaliseFrequencia Frequencia_completo[26]) {
     // 1. Inicializa 'opcao' para garantir que não comece com um valor aleatório
     int opcao = 0; 
+    int opcaoanalise = 0;
     int contadordefrequencia = 0; 
-    
+    // Contador para a frequencia de todos os arquivos
+    int contadordefrequenciatotal = 26;
     // Ponteiro para a struct chave principal (Frequencia[0])
     AnaliseFrequencia *freq_principal = &Frequencia[0]; 
+    // Frequencia dos 12 arquivos juntos
+    AnaliseFrequencia *freq_total = &Frequencia_completo[0];
 
     do {
         printf("\n");
         printf(WHITE_NEON"_______________________________________________________\n");
-        printf(WHITE_NEON"|" CYAN_NEON"          MENU DE CRIPTOANALISE              "WHITE_NEON"|\n");       
-        printf(WHITE_NEON"|" CYAN_NEON"[1] Apresentar estado atual                         "WHITE_NEON"|\n");       
-        printf(WHITE_NEON"|" CYAN_NEON"[2] Analise de frequencia                         "WHITE_NEON"|\n");        
-        printf(WHITE_NEON"|" CYAN_NEON"[3] Busca exata (Padrao no texto criptografado)   "WHITE_NEON"|\n");
-        printf(WHITE_NEON"|" CYAN_NEON"[4] Busca aproximada (Shift-And no parcial)       "WHITE_NEON"|\n");
-        printf(WHITE_NEON"|" CYAN_NEON"[5] Alterar chave                                 "WHITE_NEON"|\n");
-        printf(WHITE_NEON"|" CYAN_NEON"[6] Exportar e Sair                               "WHITE_NEON"|\n");
+        printf(WHITE_NEON"|" CYAN_NEON"          MENU DE CRIPTOANALISE                      "WHITE_NEON"|\n");       
+        printf(WHITE_NEON"|" CYAN_NEON"[1] Apresentar estado atual                          "WHITE_NEON"|\n");       
+        printf(WHITE_NEON"|" CYAN_NEON"[2] Analise de frequencia                            "WHITE_NEON"|\n");        
+        printf(WHITE_NEON"|" CYAN_NEON"[3] Busca exata (Padrao no texto criptografado)      "WHITE_NEON"|\n");
+        printf(WHITE_NEON"|" CYAN_NEON"[4] Busca aproximada (Shift-And no parcial)          "WHITE_NEON"|\n");
+        printf(WHITE_NEON"|" CYAN_NEON"[5] Alterar chave                                    "WHITE_NEON"|\n");
+        printf(WHITE_NEON"|" CYAN_NEON"[6] Exportar e Sair                                  "WHITE_NEON"|\n");
         printf(WHITE_NEON"|_____________________________________________________|\n");
         printf("Escolha: ");
         
@@ -54,8 +59,7 @@ void interface_menu_principal(const char *conteudo, StatLetra stats[26], Analise
             opcao = -1;
         }
         
-        // 🚀 CORREÇÃO ESSENCIAL: Limpar o buffer de entrada (stdin)
-        // Isso remove o caractere '\n' após o Enter e impede loops indesejados.
+        
         int c;
         while ((c = getchar()) != '\n' && c != EOF); 
 
@@ -67,27 +71,43 @@ void interface_menu_principal(const char *conteudo, StatLetra stats[26], Analise
                 break;
 
             case 2:
-                executar_opcao_2_frequencia(stats);
+                printf("\n");
+                printf(WHITE_NEON"_______________________________________________________________\n");
+                printf(WHITE_NEON"|" YELLOW_NEON"                          ANALISE                           "WHITE_NEON" |\n");       
+                printf(WHITE_NEON"|" CYAN_NEON"[1] Apresentar analise de frequencia do arquivo escolhido    "   WHITE_NEON"|\n");       
+                printf(WHITE_NEON"|" CYAN_NEON"[2] Apresentar analise de frequencia dos 12 arquivos juntos  "   WHITE_NEON"|\n");    
+                printf(WHITE_NEON"|_____________________________________________________________|\n");
+                scanf("%d", &opcaoanalise);
+                if(opcaoanalise == 1){
+                    executar_opcao_2_frequencia(stats);
+                }    
+                else if(opcaoanalise == 2){
+                    executar_opcao_2_frequencia(stats_completo);
+                }
+                else {
+                printf(RED_NEON"Opcao invalida. Tente novamente.\n"WHITE_NEON);
+                  }
                 break;
 
             case 3: 
-                printf("Ainda não foi implementado (Busca Exata)\n");
+                executar_opcao_3_busca_exata(conteudo);
                 break;
 
             case 4: 
-                printf("Ainda não foi implementado (Busca Aprox)\n");
+
+               executar_opcao_4_busca_aprox(Frequencia->texto_parcial);
+                
                 break;
 
             case 5:
-                // Passa o array completo Frequencia[26] (necessário se o mapeamento for mais complexo que César)
+                
                 executar_opcao_5_alterar(Frequencia); 
                 break;
 
             case 6:
-                // Passa o endereço da struct principal para exportação
+                
                 executar_opcao_6_exportar(freq_principal);
-                // A função de exportação já encerra a execução lógica.
-                // Não precisa de 'printf("Exportando resultado...");' após a chamada.
+                
                 break;
 
             default:

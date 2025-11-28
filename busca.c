@@ -2,12 +2,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h> 
-//#include "busca.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "busca.h"
 
 
 //Implementacao do algoritmo KMP, para buscar os casamentos exatos
 // Referencia do algoritmo kmp https://www.geeksforgeeks.org/dsa/kmp-algorithm-for-pattern-searching/
-int* computeLPSArray(char* pat) {
+int* computeLPSArray(const char* pat) {
     int m = strlen(pat);
     int *lps = malloc(m * sizeof(int));
 
@@ -33,7 +35,7 @@ int* computeLPSArray(char* pat) {
 }
 
 
-int* buscar_exata(char *texto, char *padrao) {
+int* buscar_exata(const char *texto, const char *padrao) {
     int n = strlen(texto);
     int m = strlen(padrao);
 
@@ -76,18 +78,87 @@ int* buscar_exata(char *texto, char *padrao) {
 
 
 
-void buscar_aproximada_shift_and(const char *texto_parcial, const char *padrao, int tolerancia) {
-    // Implementação do Shift-And Aproximado
-    
-    // 1. Pré-processamento: Criar máscaras de bits para cada caractere do padrão.
-    //    long mascaras[256]; 
-    
-    // 2. Busca:
-    //    Manter conjunto de estados R (bits).
-    //    Iterar pelo texto_parcial atualizando R.
-    //    Lembrar que a busca é no texto PARCIAL (mistura de cifrado/decifrado).
-    
-    printf("Resultados da busca aproximada para '%s' com erro %d:\n", padrao, tolerancia);
-    // Loop de busca aqui...
+// shiftand_kmismatch.c
+
+
+// Imprime ocorrência
+void report_occurrence(int pos) {
+    printf("Match at position %d\n", pos);
 }
+
+/*
+ Shift-And aproximado (k mismatches - apenas substituições).
+ Requisitos: m (tamanho do padrão) <= 64.
+ Parâmetros:
+  - texto: string do texto
+  - n: comprimento do texto
+  - padrao: padrão
+  - m: comprimento do padrão
+  - k: número máximo de substituições permitidas
+*/
+
+
+void shiftand_kmismatch(const char *texto, int n, const char *padrao, int m, int k) {
+    if (k < 0) return;
+    if (m == 0) return;
+    if (m > 64) {
+        fprintf(stderr, "ERROR: padrão muito grande (m > 64). Use versão multi-word.\n");
+        return;
+    }
+
+    // Construir B: para cada caractere c, B[c] tem bit i = 1 se padrao[i] == c
+    uint64_t B[256];
+    for (int i = 0; i < 256; ++i) B[i] = 0ULL;
+
+    for (int i = 0; i < m; ++i) {
+        unsigned char c = (unsigned char) padrao[i];
+        B[c] |= (1ULL << i);
+    }
+
+    // D[e] representa bitmask de prefixes que casam com <= e mismatches
+    // Inicialmente todos D[e] = 0
+    uint64_t *D = (uint64_t*) calloc((size_t)(k + 1), sizeof(uint64_t));
+    if (!D) { perror("calloc"); return; }
+
+    // Mask para testar ocorrência completa: bit m-1
+    uint64_t match_bit = 1ULL << (m - 1);
+
+    for (int j = 0; j < n; ++j) {
+        unsigned char tc = (unsigned char) texto[j];
+
+        // Guardar antigos (precisamos do D[e-1] antigo ao atualizar D[e])
+        uint64_t prev = D[0];
+
+        // Atualiza D[0] (0 mismatches) — Shift-And clássico
+        uint64_t newD0 = ((D[0] << 1) | 1ULL) & B[tc];
+        D[0] = newD0;
+
+        // Atualiza D[e] para e = 1..k
+        for (int e = 1; e <= k; ++e) {
+            uint64_t oldDe = D[e];         // D[e] antigo
+            // calcular novo De usando:
+            // 1) casar sem novo erro: ((De << 1) | 1) & B[tc]
+            // 2) usar 1 substituição proveniente de prev (D[e-1] antigo) deslocado
+            uint64_t part1 = ((oldDe << 1) | 1ULL) & B[tc];
+            uint64_t part2 = (prev << 1);  // prev é D[e-1] antigo
+            uint64_t newDe = part1 | part2;
+            // atualizar prev para próxima iteração (prev <- oldDe)
+            prev = oldDe;
+            D[e] = newDe;
+        }
+
+        // Verifica ocorrência: algum D[e] tem bit (m-1) = 1 ?
+        for (int e = 0; e <= k; ++e) {
+            if (D[e] & match_bit) {
+                int pos = j - m + 1;
+                if (pos >= 0) report_occurrence(pos);
+                break; // se queremos reportar apenas uma vez por posição
+            }
+        }
+    }
+
+    free(D);
+}
+
+
 

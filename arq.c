@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "arq.h"
-
+#include <string.h>
 char* ler_arquivo_texto(const char *caminho) {
     FILE *f = fopen(caminho, "r");
     if (!f) {
@@ -71,35 +71,69 @@ void salvar_resultado(const char *nome_arquivo, const char *arquivo_claro) {
     fclose(f);
 
 }
-//_____________________________________________________________________________________________
-//Não esta sendo usada ainda
+//______________________________________________________________________________________________
+char* concatenar_arquivos() {
+    // Lista FIXA dos 12 nomes de arquivos 
+    const char *arquivos[] = {
+        "Arquivos_textos_claro/Aglaea.txt",
+        "Arquivos_textos_claro/Anaxa.txt",
+        "Arquivos_textos_claro/Castorice.txt",
+        "Arquivos_textos_claro/Cerydra.txt",
+        "Arquivos_textos_claro/Cipher.txt",
+        "Arquivos_textos_claro/Cyrene.txt",
+        "Arquivos_textos_claro/Dang Heng - Terravox.txt", 
+        "Arquivos_textos_claro/Hyacine.txt",
+        "Arquivos_textos_claro/Hysilens.txt",
+        "Arquivos_textos_claro/Mydei.txt",
+        "Arquivos_textos_claro/Phainon.txt",
+        "Arquivos_textos_claro/Tribios.txt"
+    };
+    
+    // O número de arquivos e calculado automaticamente
+    int num_arquivos = sizeof(arquivos) / sizeof(arquivos[0]);
 
-// INTERFACE APENAS PARA CASO DE TESTES DE MESA
-void leitura_arquivo(char *nome_arquivo){
-
-    // Construindo caminho completo do arquivo claro
-    char caminho_claro[512];
-    snprintf(caminho_claro, sizeof(caminho_claro),
-             "Arquivos_textos_claro/%s", nome_arquivo);
-
-    // 1. Ler arquivo original
-    char *conteudo = ler_arquivo_texto(caminho_claro);
-
-    if (!conteudo) {
-        printf("Erro ao ler arquivo. Encerrando...\n");
+    // Inicializa o buffer de conteúdo total com uma string vazia ("")
+    char *conteudo_total = (char*) malloc(1); 
+    if (!conteudo_total) {
+        perror("Falha ao alocar memoria inicial");
+        return NULL;
     }
+    conteudo_total[0] = '\0'; // Torna-o uma string vazia valida
 
-    // 2. Criptografar
-    char *criptografado = criptografia_cifra_deslocamento(conteudo);
 
-    if (!criptografado) {
-        printf("Erro na criptografia.\n");
-        free(conteudo);
+    // Itera sobre todos os arquivos da lista
+    for (int i = 0; i < num_arquivos; i++) {
+        // Le o conteudo do arquivo atual (funcao auxiliar)
+        char *conteudo_parcial = ler_arquivo_texto(arquivos[i]);
+        
+        // So concatena se a leitura do arquivo foi bem-sucedida
+        if (conteudo_parcial) {
+            size_t tam_atual = strlen(conteudo_total);
+            size_t tam_parcial = strlen(conteudo_parcial);
+            
+            // O novo tamanho sera o tamanho atual + o tamanho parcial + 1 para o '\0'
+            size_t tam_novo = tam_atual + tam_parcial + 1; 
+
+            // 1. Realoque memoria para o novo conteudo
+            char *temp = (char*) realloc(conteudo_total, tam_novo);
+
+            if (temp) {
+                conteudo_total = temp;
+                // 2. Concatena o novo conteudo na string total
+                strcat(conteudo_total, conteudo_parcial);
+            } else {
+                perror("Falha ao realocar memoria durante a concatenacao");
+                free(conteudo_parcial);
+                free(conteudo_total);
+                return NULL;
+            }
+            
+            // Libera a memoria temporaria do arquivo parcial
+            free(conteudo_parcial);
+        }
     }
-
-    // 3. Salvar resultado 
-    salvar_resultado(nome_arquivo, criptografado);
-
-    // Liberar memoria
-    free(conteudo);
+    
+    return conteudo_total;
 }
+
+//____________________________________________________________________________________________
