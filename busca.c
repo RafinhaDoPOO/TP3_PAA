@@ -76,26 +76,10 @@ int* buscar_exata(const char *texto, const char *padrao) {
 
 
 
-
-
-// shiftand_kmismatch.c
-
-
-// Imprime ocorrência
 void report_occurrence(int pos) {
-    printf("Match at position %d\n", pos);
+    printf(WHITE_NEON "achou na posicao: %d\n" RESET, pos);
 }
 
-/*
- Shift-And aproximado (k mismatches - apenas substituições).
- Requisitos: m (tamanho do padrão) <= 64.
- Parâmetros:
-  - texto: string do texto
-  - n: comprimento do texto
-  - padrao: padrão
-  - m: comprimento do padrão
-  - k: número máximo de substituições permitidas
-*/
 
 
 void shiftand_kmismatch(const char *texto, int n, const char *padrao, int m, int k) {
@@ -106,7 +90,7 @@ void shiftand_kmismatch(const char *texto, int n, const char *padrao, int m, int
         return;
     }
 
-    // Construir B: para cada caractere c, B[c] tem bit i = 1 se padrao[i] == c
+    
     uint64_t B[256];
     for (int i = 0; i < 256; ++i) B[i] = 0ULL;
 
@@ -115,44 +99,42 @@ void shiftand_kmismatch(const char *texto, int n, const char *padrao, int m, int
         B[c] |= (1ULL << i);
     }
 
-    // D[e] representa bitmask de prefixes que casam com <= e mismatches
-    // Inicialmente todos D[e] = 0
+    // D[e] bitmask de prefixes que casam com menos de e mismatches
+    
     uint64_t *D = (uint64_t*) calloc((size_t)(k + 1), sizeof(uint64_t));
     if (!D) { perror("calloc"); return; }
 
-    // Mask para testar ocorrência completa: bit m-1
+    // mascara para testar ocorrência completa
     uint64_t match_bit = 1ULL << (m - 1);
 
     for (int j = 0; j < n; ++j) {
         unsigned char tc = (unsigned char) texto[j];
 
-        // Guardar antigos (precisamos do D[e-1] antigo ao atualizar D[e])
+        // fallback
         uint64_t prev = D[0];
 
-        // Atualiza D[0] (0 mismatches) — Shift-And clássico
+      
         uint64_t newD0 = ((D[0] << 1) | 1ULL) & B[tc];
         D[0] = newD0;
 
-        // Atualiza D[e] para e = 1..k
+        
         for (int e = 1; e <= k; ++e) {
-            uint64_t oldDe = D[e];         // D[e] antigo
-            // calcular novo De usando:
-            // 1) casar sem novo erro: ((De << 1) | 1) & B[tc]
-            // 2) usar 1 substituição proveniente de prev (D[e-1] antigo) deslocado
+            uint64_t oldDe = D[e];        
+           
             uint64_t part1 = ((oldDe << 1) | 1ULL) & B[tc];
-            uint64_t part2 = (prev << 1);  // prev é D[e-1] antigo
+            uint64_t part2 = (prev << 1);  
             uint64_t newDe = part1 | part2;
-            // atualizar prev para próxima iteração (prev <- oldDe)
+            
             prev = oldDe;
             D[e] = newDe;
         }
 
-        // Verifica ocorrência: algum D[e] tem bit (m-1) = 1 ?
+
         for (int e = 0; e <= k; ++e) {
             if (D[e] & match_bit) {
                 int pos = j - m + 1;
                 if (pos >= 0) report_occurrence(pos);
-                break; // se queremos reportar apenas uma vez por posição
+                break; 
             }
         }
     }

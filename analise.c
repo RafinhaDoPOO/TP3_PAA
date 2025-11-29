@@ -7,7 +7,7 @@
 
 void executar_analise_frequencia(const char *texto_cifrado, StatLetra stats[26]){
 
-    // 1. Inicializar (A-Z)
+   
     for (int i = 0; i < 26; i++){
         stats[i].letra = 'A' + i;
         stats[i].contagem = 0;
@@ -16,7 +16,7 @@ void executar_analise_frequencia(const char *texto_cifrado, StatLetra stats[26])
 
     int total = 0;
 
-    // 2. Contar ocorrências
+
     for (int i = 0; texto_cifrado[i] != '\0'; i++){
         char c = texto_cifrado[i];
 
@@ -27,14 +27,14 @@ void executar_analise_frequencia(const char *texto_cifrado, StatLetra stats[26])
         }
     }
 
-    // 3. Calcular frequências
+
     for (int i = 0; i < 26; i++){
         if (total > 0){
             stats[i].frequencia = (stats[i].contagem * 100.0f) / total;
         }
     }
 
-    // 4. Ordenar array stats por contagem (decrescente)
+
     for (int i = 0; i < 26 - 1; i++){
         for (int j = 0; j < 26 - i - 1; j++){
             if (stats[j].contagem < stats[j + 1].contagem){
@@ -61,10 +61,10 @@ void Ajustando_Frequencia(StatLetra stats[26], AnaliseFrequencia Frequencia[26])
                 stats[j] = tmp;
             }
 
-    // Preencher resultado
+ 
     for (int i = 0; i < 26; i++)
     {
-        Frequencia[i].letraalfabeto = freq_pt[i];       // letra esperada
-        Frequencia[i].letraFrequencia = stats[i].letra; // letra real do texto
+        Frequencia[i].letraalfabeto = freq_pt[i];     
+        Frequencia[i].letraFrequencia = stats[i].letra;
     }
 }

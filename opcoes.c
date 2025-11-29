@@ -9,49 +9,61 @@
 #define MAX_FILENAME 256
 #define MAX_TEXTO 100000
 #define MAX_PADRAO 256
-//_________________________________________________________________________________________________________
 
-void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, StatLetra stats[26], int contador){
-    
+void executar_opcao_1_estado(
+        const char *texto_cifrado,
+        AnaliseFrequencia *freq,
+        StatLetra stats[26],
+        int contador
+) {
     char mais_comum_cifrada = stats[0].letra;
-    char mais_comum_idioma = 'A'; 
+    char mais_comum_idioma  = 'A'; 
     int deslocamento = (mais_comum_cifrada - mais_comum_idioma + 26) % 26;
-    
-    int letra_esta_visivel[256] = {0}; 
 
-    for(int i = 0; i < contador && i < 26; i++) {
+    int letra_esta_visivel[256] = {0};
+    for (int i = 0; i < contador && i < 26; i++) {
         unsigned char letra_atual = stats[i].letra;
-        letra_esta_visivel[letra_atual] = 1; 
+        letra_esta_visivel[letra_atual] = 1;
     }
-    
 
-    char Alfabeto[26] = {
+    const char Alfabeto[26] = {
         'A','B','C','D','E','F','G','H','I','J','K','L','M',
         'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
     };
 
     printf(CYAN_NEON"\n______________________TEXTO CRIPTOGRAFADO___________________________\n");
     printf(WHITE_NEON"%s\n\n", texto_cifrado);
-    
+
     printf(LIMA"_______________________CHAVE PARCIAL___________________\n");
     printf(LIMA"| "RESET);
-    for (int i = 0; i < 26; i++) printf(WHITE_NEON "%c ", Alfabeto[i]); 
+    for (int i = 0; i < 26; i++) printf(WHITE_NEON "%c ", Alfabeto[i]);
     printf(LIMA" |\n"RESET);
 
     printf(LIMA"| "RESET);
+
+    
     for (int i = 0; i < 26; i++) {
-        char letra_cifrada_atual = Alfabeto[i];
-        
-        if (letra_esta_visivel[(unsigned char)letra_cifrada_atual]) {
-            char decifrada = ((letra_cifrada_atual - 'A' - deslocamento + 26) % 26) + 'A';
-            printf(WHITE_NEON"%c ", decifrada);
-            freq->chaves[i] = decifrada; //salvando no vetor pra exportar
-        } else {
-            printf(WHITE_NEON"_ ");
-            freq->chaves[i] = '_'; 
+        char cifrada = Alfabeto[i];
+
+        if (freq->travada[i] == 1) {
+            
+            printf(WHITE_NEON "%c ", freq->chaves[i]);
+            continue;
         }
-        
+
+     
+        if (letra_esta_visivel[(unsigned char)cifrada]) {
+            char decifrada = ((cifrada - 'A' - deslocamento + 26) % 26) + 'A';
+            printf(WHITE_NEON "%c ", decifrada);
+           
+            freq->chaves[i] = decifrada;
+        } else {
+            printf(WHITE_NEON "_ ");
+           
+            if (freq->travada[i] == 0) freq->chaves[i] = '_';
+        }
     }
+
     printf(LIMA" |\n"RESET);
     printf(LIMA"|______________________________________________________|\n"RESET);
     printf("\n");
@@ -59,36 +71,57 @@ void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, 
 
     printf(CYAN_NEON"_______________________TEXTO PROGRESSIVO__________________________\n");
 
-    freq->texto_parcial = malloc(strlen(texto_cifrado) * sizeof(char));
+    size_t len = strlen(texto_cifrado);
 
-    for (int i = 0; texto_cifrado[i] != '\0'; i++) {
+    if (freq->texto_parcial) {
+        free(freq->texto_parcial);
+        freq->texto_parcial = NULL;
+    }
+    freq->texto_parcial = malloc(len + 1);
+    if (!freq->texto_parcial) {
+        perror("malloc");
+        return;
+    }
+    freq->texto_parcial[len] = '\0';
+
+    for (size_t i = 0; i < len; ++i) {
         char c = texto_cifrado[i];
-        freq->texto_parcial[i] = texto_cifrado[i];
+        freq->texto_parcial[i] = c;
 
-        if (isalpha(c)) {
-            char maiuscula = toupper(c);
-            
+        if (isalpha((unsigned char)c)) {
+            char maiuscula = toupper((unsigned char)c);
+            int idx = maiuscula - 'A';
+
+          
+            if (freq->chaves[idx] != '_' && freq->chaves[idx] != '\0') {
+                char decifrada = freq->chaves[idx];
+                char base = isupper((unsigned char)c) ? 'A' : 'a';
+                char ajustada = (decifrada - 'A') + base;
+
+                freq->texto_parcial[i] = ajustada;
+                printf(LIMA "%c" RESET, ajustada);
+                continue;
+            }
+
+        
             if (letra_esta_visivel[(unsigned char)maiuscula]) {
-                char base = isupper(c) ? 'A' : 'a';
+                char base = isupper((unsigned char)c) ? 'A' : 'a';
                 char decifrado = ((c - base - deslocamento + 26) % 26) + base;
+
                 freq->texto_parcial[i] = decifrado;
                 printf(LIMA "%c" RESET, decifrado);
             } else {
-                printf(WHITE_NEON"%c"RESET, c);
+                printf(WHITE_NEON "%c" RESET, c);
             }
+
         } else {
-            printf(WHITE_NEON"%c"RESET, c);
+            printf(WHITE_NEON "%c" RESET, c);
         }
-        
     }
-    
-    printf("\n");
-    printf(CYAN_NEON"__________________________________________________________________\n"RESET);
+
+    printf("\n" CYAN_NEON"__________________________________________________________________\n"RESET);
     printf("\n\n");
 }
-
-//_________________________________________________________________________________________________________
-
 void executar_opcao_2_frequencia(StatLetra stats[26]) {
     printf("\n");
     printf(CYAN_NEON"____________________________________\n");
@@ -117,7 +150,7 @@ void executar_opcao_3_busca_exata(const char *texto_cifrado) {
         printf(RED_NEON "Erro na leitura do padrao.\n" RESET);
         return;
     }
-    // Converter padrão para maiúsculas
+
     for (int i = 0; padrao[i] != '\0'; i++) {
         padrao[i] = toupper((unsigned char)padrao[i]);
     }
@@ -141,22 +174,23 @@ void executar_opcao_3_busca_exata(const char *texto_cifrado) {
         i++;
     }
 
-    //quantia de ocorrencias
+
     printf(LIMA "Ocorrencias: %d\n" RESET, count);
 
-    //exibindo onde tava
+  
+    
     if (count > 0) {
         printf(WHITE_NEON "\nDetalhes das Ocorrencias:\n" RESET);
         
-        // Re-iterar para imprimir detalhes
+
         for (int j = 0; j < count; j++) {
             int pos = posicoes[j];
             int len = strlen(padrao);
             
-            // Exibir a ocorrência (substring)
+          
             printf(CYAN_NEON "  [%03d] " LIMA, pos); 
             
-            // Imprime o texto casando o padrão
+     
             for (int k = 0; k < len; k++) {
                 printf("%c", texto_cifrado[pos + k]);
             }
@@ -182,7 +216,7 @@ void executar_opcao_4_busca_aprox(char *texto_cifrado){
         return;
     }
 
-    // Converter padrão para maiúsculas
+
     for (int i = 0; padrao[i] != '\0'; i++) {
         padrao[i] = toupper((unsigned char)padrao[i]);
     }
@@ -199,69 +233,33 @@ void executar_opcao_4_busca_aprox(char *texto_cifrado){
 }
 //_________________________________________________________________________________________________________
 
-void executar_opcao_5_alterar(AnaliseFrequencia Frequencia[26]) {
-    char original, cifrada;
+void executar_opcao_5_alterar(AnaliseFrequencia *freq) {
+    char cifrada, decifrada;
 
-    printf(CYAN_NEON "\n______________________ALTERAR CHAVE MANUALMENTE______________________\n" RESET);
-    printf(WHITE_NEON "Informe a letra original, seguida da letra para a qual foi mapeada:\n");
-    
-    printf(WHITE_NEON "\nDIGITE: " RESET);
-    
-    if (scanf(" %c %c", &original, &cifrada) != 2) {
-        while (getchar() != '\n'); 
-        printf(RED_NEON "Erro na leitura. Tente novamente.\n" RESET);
+    printf(CYAN_NEON "\n_______________________ALTERAR CHAVE________________________\n" RESET);
+    printf(WHITE_NEON "Informe a letra cifrada e a letra decifrada (ex: A S): " RESET);
+
+    if (scanf(" %c %c", &cifrada, &decifrada) != 2) {
+        printf(RED_NEON "Entrada inválida.\n" RESET);
         return;
     }
 
-    original = toupper(original);
-    cifrada = toupper(cifrada);
+    cifrada   = toupper(cifrada);
+    decifrada = toupper(decifrada);
 
-    if (!isalpha(original) || !isalpha(cifrada)) {
-        printf(RED_NEON "Erro: Por favor, insira apenas letras validas.\n" RESET);
+    if (!isalpha(cifrada) || !isalpha(decifrada)) {
+        printf(RED_NEON "As entradas devem ser letras.\n" RESET);
         return;
     }
 
-    int idx_original = -1;       
-    int idx_dono_anterior = -1;  
+    int idx = cifrada - 'A';
 
-    for (int i = 0; i < 26; i++) {
-        if (Frequencia[i].letraalfabeto == original) {
-            idx_original = i;
-        }
-        if (Frequencia[i].letraFrequencia == cifrada) {
-            idx_dono_anterior = i;
-        }
-    }
-
-   if (idx_original != -1) {
-    // Armazena o mapeamento cifrado **atual** da letra 'original'
-    // Este é o valor que a letra "dona anterior" receberá na troca.
-    char cifrada_velha_de_original = Frequencia[idx_original].letraFrequencia;
     
-    // NOTA: A variável 'original' já contém a letra do texto simples que estamos modificando.
+    freq->chaves[idx]  = decifrada;
+    freq->travada[idx] = 1;  
 
-    if (idx_dono_anterior != -1 && idx_dono_anterior != idx_original) {
-        
-        // 1. A letra 'original' agora aponta para a nova 'cifrada'
-        Frequencia[idx_original].letraFrequencia = cifrada;
-        
-        // 2. O antigo "dono" da 'cifrada' recebe o mapeamento antigo de 'original'
-        Frequencia[idx_dono_anterior].letraFrequencia = cifrada_velha_de_original; 
-        
-        printf(YELLOW_NEON "\n[Aviso] Houve uma troca para manter a consistência:\n");
-        // Use 'original' para se referir à letra que está tendo seu mapeamento alterado.
-        printf("A letra '%c' cedeu o mapeamento '%c' e ficou com '%c'.\n", 
-               original, cifrada_velha_de_original, cifrada);
-    } else {
-        // Se não houve troca, apenas atualiza o mapeamento
-        Frequencia[idx_original].letraFrequencia = cifrada;
-    }
-
-    printf(LIMA "\nRegistrado com sucesso: %c -> %c\n" RESET, original, cifrada);
-} else {
-    printf(RED_NEON "Erro: Letra original nao encontrada na tabela.\n" RESET);
-}
-    printf(CYAN_NEON "_____________________________________________________________________\n" RESET);
+    printf(LIMA "Registrado: %c -> %c\n" RESET, cifrada, decifrada);
+    printf(CYAN_NEON "_________________________________________________________________\n" RESET);
 }
 
 //_________________________________________________________________________________________________________
@@ -317,4 +315,3 @@ void executar_opcao_6_exportar(const AnaliseFrequencia *freq) {
     printf("\n" LIMA "SUCESSO: CHAVE SALVA EM '%s'.\n" RESET, nome_arquivo);
     printf(YELLOW_NEON "ENCERRANDO\n" RESET);
 }
-

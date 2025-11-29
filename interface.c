@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include "interface.h"
 #include "opcoes.h"
+#include "cores.h"
 
 void desenho_inicial(){
 printf(CYAN_NEON "=========================================================================================\n");
@@ -27,17 +28,22 @@ printf(WHITE_NEON "                                               Tp3 - Projeto 
 printf(YELLOW_NEON "Novo Objetivo: Utilize a criptoanalise para decifrar a profecia!\n" RESET);
 }
 
-void interface_menu_principal(const char *conteudo, StatLetra stats[26], AnaliseFrequencia Frequencia[26],
-    const char *conteudo_completo, StatLetra stats_completo[26] , AnaliseFrequencia Frequencia_completo[26]) {
-    // 1. Inicializa 'opcao' para garantir que não comece com um valor aleatório
+
+void interface_menu_principal(
+    const char *conteudo,
+    StatLetra stats[26],
+    AnaliseFrequencia Frequencia[26],
+    const char *conteudo_completo,
+    StatLetra stats_completo[26],
+    AnaliseFrequencia Frequencia_completo[26]
+){
     int opcao = 0; 
     int opcaoanalise = 0;
-    int contadordefrequencia = 0; 
-    // Contador para a frequencia de todos os arquivos
+    int contadordefrequencia = 0;
     int contadordefrequenciatotal = 26;
-    // Ponteiro para a struct chave principal (Frequencia[0])
-    AnaliseFrequencia *freq_principal = &Frequencia[0]; 
-    // Frequencia dos 12 arquivos juntos
+
+    // ponteiro para a struct principal
+    AnaliseFrequencia *freq_principal = &Frequencia[0];
     AnaliseFrequencia *freq_total = &Frequencia_completo[0];
 
     do {
@@ -52,22 +58,21 @@ void interface_menu_principal(const char *conteudo, StatLetra stats[26], Analise
         printf(WHITE_NEON"|" CYAN_NEON"[6] Exportar e Sair                                  "WHITE_NEON"|\n");
         printf(WHITE_NEON"|_____________________________________________________|\n");
         printf("Escolha: ");
-        
-        // Lê a opção
+
+        // leitura segura
         if (scanf("%d", &opcao) != 1) {
-            // Se a leitura falhar (ex: usuário digitar letra), define a opção como inválida
             opcao = -1;
         }
-        
-        
+
+        // limpa buffer
         int c;
-        while ((c = getchar()) != '\n' && c != EOF); 
+        while ((c = getchar()) != '\n' && c != EOF);
 
         switch (opcao) {
+
             case 1:
-                // Passa o endereço da primeira struct do array para preencher a chave
                 executar_opcao_1_estado(conteudo, freq_principal, stats, contadordefrequencia);
-                contadordefrequencia++; 
+                contadordefrequencia++;
                 break;
 
             case 2:
@@ -87,6 +92,7 @@ void interface_menu_principal(const char *conteudo, StatLetra stats[26], Analise
                 else {
                 printf(RED_NEON"Opcao invalida. Tente novamente.\n"WHITE_NEON);
                   }
+                
                 break;
 
             case 3: 

@@ -1,24 +1,17 @@
 #ifndef OPCOES_H
 #define OPCOES_H
 
-#include "analise.h" // Certifique-se que as structs StatLetra e AnaliseFrequencia estão aqui
+#include "analise.h"
 
-// Opção 1: Estado Atual 
-// (Adicionado o parâmetro AnaliseFrequencia para igualar à implementação)
-void executar_opcao_1_estado(const char *texto_cifrado,AnaliseFrequencia *freq, StatLetra stats[26], int contador);
 
-// Opção 2: Análise de Frequência
+void executar_opcao_1_estado(const char *texto_cifrado, AnaliseFrequencia *freq, StatLetra stats[26], int contador);
+
 void executar_opcao_2_frequencia(StatLetra stats[26]);
 
-// Opção 3 e 4: (Placeholders)
 void executar_opcao_3_busca_exata(const char *texto_cifrado);
 
 void executar_opcao_4_busca_aprox(char *texto_cifrado);
-// Opção 5: Alterar Chave
-// (O nome aqui deve ser igual ao da implementação)
-void executar_opcao_5_alterar(AnaliseFrequencia Frequencia[26]);
-
-// Opção 6: Exportar
+void executar_opcao_5_alterar(AnaliseFrequencia *freq);
 void executar_opcao_6_exportar(const AnaliseFrequencia *freq);
 
 #endif

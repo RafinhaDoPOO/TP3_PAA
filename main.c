@@ -5,11 +5,33 @@
 #include "analise.h"
 
 int main() {
+
     desenho_inicial();
+   
     char nome_arquivo[256];
-    printf(WHITE_NEON "Digite o nome do seu arquivo ex(Mydei.txt): "RESET);
-    // Leitura, criptografia e salvamento do arquivo escolhido
+
+    // Vetores principais de análise
+    StatLetra stats[26];
+    StatLetra stats_completo[26];
+    AnaliseFrequencia Frequencia[26];
+    AnaliseFrequencia Frequencia_completo[26];
+
+    // Inicializar as chaves e travas
+    for (int i = 0; i < 26; ++i) {
+        for (int j = 0; j < 26; ++j) {
+            Frequencia[i].chaves[j] = '_';
+            Frequencia[i].travada[j] = 0;
+            Frequencia[i].texto_parcial = NULL;
+
+            Frequencia_completo[i].chaves[j] = '_';
+            Frequencia_completo[i].travada[j] = 0;
+            Frequencia_completo[i].texto_parcial = NULL;
+        }
+    }
+
+    printf(WHITE_NEON "Digite o nome do seu arquivo ex(Mydei.txt): " RESET);
     scanf("%s", nome_arquivo);
+
     char arquivoclaro[512];
     snprintf(arquivoclaro, sizeof(arquivoclaro),
              "Arquivos_textos_claro/%s", nome_arquivo);
@@ -18,28 +40,29 @@ int main() {
     snprintf(destino, sizeof(destino),
              "Arquivos_textos_criptografados/%s", nome_arquivo);
 
+    // Lê, criptografa e salva o arquivo individual
     char *conteudo = ler_arquivo_texto(arquivoclaro);
     criptografia_cifra_deslocamento(conteudo);
     salvar_resultado(nome_arquivo, conteudo);
 
-    //Leitura, criptografia e salvamento dos 12 arquivos
+    // Lê, criptografa e salva os 12 arquivos concatenados
     char *conteudocompleto = concatenar_arquivos();
     criptografia_cifra_deslocamento(conteudocompleto);
-    char nome_arquivo_completo[256] = "Arquivocompleto.txt";
-    salvar_resultado(nome_arquivo_completo, conteudocompleto);
-    // Stat e Analise do arquivo unico
-    StatLetra stats[26];
-    AnaliseFrequencia Frequencia[26];
+    salvar_resultado("Arquivocompleto.txt", conteudocompleto);
+
+    // Estatísticas e frequências – arquivo individual
     executar_analise_frequencia(conteudo, stats);
     Ajustando_Frequencia(stats, Frequencia);
-    // Stat e Analise dos 12 arquivos
-    StatLetra stats_completo[26];
-    AnaliseFrequencia Frequencia_completo[26];
+
+    // Estatísticas e frequências – arquivos completos
     executar_analise_frequencia(conteudocompleto, stats_completo);
     Ajustando_Frequencia(stats_completo, Frequencia_completo);
-    // Agora o menu é responsabilidade do TAD interface
-    interface_menu_principal(conteudo, stats, Frequencia, conteudocompleto, stats_completo,Frequencia_completo);
+
+    // Abre o menu
+    interface_menu_principal(
+        conteudo, stats, Frequencia,
+        conteudocompleto, stats_completo, Frequencia_completo
+    );
 
     return 0;
-
 }
